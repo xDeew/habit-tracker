@@ -66,10 +66,16 @@ endblock %} {% block content %}
                 hx-post="/auth/web/login"
                 hx-target="#auth-feedback-login"
                 hx-swap="innerHTML"
+                onsubmit="return validateLoginBeforeSubmit();"
               >
                 <label>
                   <span>Email</span>
-                  <input type="email" name="email" placeholder="Enter email" />
+                  <input
+                    type="email"
+                    name="email"
+                    id="login-email"
+                    placeholder="Enter email"
+                  />
                 </label>
 
                 <label>
@@ -77,6 +83,7 @@ endblock %} {% block content %}
                   <input
                     type="password"
                     name="password"
+                    id="login-password"
                     placeholder="Enter password"
                   />
                 </label>
@@ -232,6 +239,8 @@ endblock %} {% block content %}
     const signupToggle = document.getElementById("signup-toggle");
     const authToggle = document.getElementById("auth-toggle");
 
+    if (!track || !loginToggle || !signupToggle || !authToggle) return;
+
     if (mode === "signup") {
       track.classList.add("auth-track-signup");
       loginToggle.classList.remove("toggle-button-active");
@@ -244,6 +253,20 @@ endblock %} {% block content %}
       authToggle.classList.remove("auth-toggle-signup");
       resetSignupState();
     }
+  }
+
+  function renderAuthError(targetId, message) {
+    const target = document.getElementById(targetId);
+    if (!target) return;
+
+    target.innerHTML = `<div class="feedback-box feedback-error">${message}</div>`;
+  }
+
+  function clearAuthError(targetId) {
+    const target = document.getElementById(targetId);
+    if (!target) return;
+
+    target.innerHTML = "";
   }
 
   function updateRuleState(elementId, isValid, isNeutral = false) {
@@ -319,20 +342,84 @@ endblock %} {% block content %}
     return lengthValid && lowerValid && upperValid && numberValid && matchValid;
   }
 
-  function validateSignupBeforeSubmit() {
-    return validateSignupPassword();
+  function validateLoginBeforeSubmit() {
+    const emailInput = document.getElementById("login-email");
+    const passwordInput = document.getElementById("login-password");
+
+    if (!emailInput || !passwordInput) return false;
+
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+
+    if (!email || !password) {
+      renderAuthError(
+        "auth-feedback-login",
+        "Please enter both email and password.",
+      );
+      return false;
+    }
+
+    clearAuthError("auth-feedback-login");
+    return true;
   }
 
-  function resetSignupState() {
+  function validateSignupBeforeSubmit() {
+    const usernameInput = document.querySelector('input[name="username"]');
+    const emailInput = document
+      .querySelector("#signup-password")
+      ?.form?.querySelector('input[name="email"]');
     const passwordInput = document.getElementById("signup-password");
     const repeatPasswordInput = document.getElementById(
       "signup-repeat-password",
     );
+
+    if (
+      !usernameInput ||
+      !emailInput ||
+      !passwordInput ||
+      !repeatPasswordInput
+    ) {
+      return false;
+    }
+
+    const username = usernameInput.value.trim();
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+    const repeatPassword = repeatPasswordInput.value;
+
+    if (!username || !email || !password || !repeatPassword) {
+      renderAuthError(
+        "auth-feedback-signup",
+        "Please complete all required fields.",
+      );
+      return false;
+    }
+
+    const passwordValid = validateSignupPassword();
+
+    if (!passwordValid) {
+      renderAuthError(
+        "auth-feedback-signup",
+        "Please fix the password requirements before continuing.",
+      );
+      return false;
+    }
+
+    clearAuthError("auth-feedback-signup");
+    return true;
+  }
+
+  function resetSignupState() {
+    const signupForm = document.querySelector("#signup-password")?.form;
     const feedback = document.getElementById("auth-feedback-signup");
 
-    if (passwordInput) passwordInput.value = "";
-    if (repeatPasswordInput) repeatPasswordInput.value = "";
-    if (feedback) feedback.innerHTML = "";
+    if (signupForm) {
+      signupForm.reset();
+    }
+
+    if (feedback) {
+      feedback.innerHTML = "";
+    }
 
     hidePasswordRulesBox();
     resetSignupRulesVisual();

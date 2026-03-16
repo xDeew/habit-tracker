@@ -90,6 +90,22 @@ def web_signup(
     repeat_password: str = Form(...),
     db: Session = Depends(get_db),
 ):
+
+    if (
+        not username.strip()
+        or not email.strip()
+        or not password.strip()
+        or not repeat_password.strip()
+    ):
+        return templates.TemplateResponse(
+            "partials/auth_feedback.html",
+            {
+                "request": request,
+                "error": "Please complete all required fields.",
+                "success": None,
+            },
+        )
+
     existing_user = db.query(User).filter(User.email == email).first()
 
     if existing_user:
@@ -164,6 +180,15 @@ def web_login(
 ):
     user = db.query(User).filter(User.email == email).first()
 
+    if not email.strip() or not password.strip():
+        return templates.TemplateResponse(
+            "partials/auth_feedback.html",
+            {
+                "request": request,
+                "error": "Please enter both email and password.",
+                "success": None,
+            },
+        )
     if not user or not verify_password(password, user.hashed_password):
         return templates.TemplateResponse(
             "partials/auth_feedback.html",
@@ -172,7 +197,6 @@ def web_login(
                 "error": "Invalid email or password.",
                 "success": None,
             },
-            status_code=401,
         )
 
     token = create_access_token(

@@ -50,6 +50,12 @@ a {
     grid-template-columns: 360px 1fr;
     gap: 1.5rem;
     min-height: 100vh;
+    align-items: start;
+}
+
+.sidebar,
+.content-panel {
+    align-self: start;
 }
 
 .sidebar {
@@ -1062,10 +1068,17 @@ button {
     border-radius: 16px;
     background: #fcfbf8;
     border: 1px solid var(--border);
+    min-height: 168px;
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.22s ease, transform 0.22s ease;
 }
 
 .password-rules-box-hidden {
-    display: none;
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-6px);
+    pointer-events: none;
 }
 
 .password-rules-title {
