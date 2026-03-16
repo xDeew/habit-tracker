@@ -10,6 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, Form, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
+from fastapi.responses import HTMLResponse, RedirectResponse
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 templates = Jinja2Templates(directory="app/templates")
@@ -151,4 +152,11 @@ def web_login(
         secure=False,
         max_age=60 * 60,
     )
+    return response
+
+
+@router.post("/web/logout")
+def web_logout():
+    response = RedirectResponse(url="/auth-page", status_code=303)
+    response.delete_cookie(key="access_token")
     return response

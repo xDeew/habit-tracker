@@ -10,8 +10,14 @@
       </p>
     </div>
 
-    <div class="planner-user-chip">
-      <span>{{ current_user.email }}</span>
+    <div class="planner-header-actions">
+      <div class="planner-user-chip">
+        <span>{{ current_user.email }}</span>
+      </div>
+
+      <form action="/auth/web/logout" method="post">
+        <button type="submit" class="secondary-action">Logout</button>
+      </form>
     </div>
   </header>
 
@@ -22,6 +28,10 @@
           <div>
             <p class="section-kicker">Today</p>
             <h2>Your habits for now</h2>
+            <p class="today-summary">
+              {{ completed_today_ids|length }} of {{ habits|length }} completed
+              today
+            </p>
           </div>
           <div class="today-date-chip">Current system</div>
         </div>
