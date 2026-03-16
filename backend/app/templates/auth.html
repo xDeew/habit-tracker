@@ -52,143 +52,145 @@ endblock %} {% block content %}
           </button>
         </div>
 
-        <div class="auth-viewport">
-          <div class="auth-track" id="auth-track">
-            <section class="auth-panel">
-              <p class="form-kicker">Account access</p>
-              <h3>Continue to your tracker</h3>
-              <p class="auth-card-text">
-                Enter your details to access your habits, entries, and progress.
-              </p>
+        <div class="auth-viewport" id="auth-viewport">
+          <section class="auth-panel auth-panel-active" id="auth-panel-login">
+            <p class="form-kicker">Account access</p>
+            <h3>Continue to your tracker</h3>
+            <p class="auth-card-text">
+              Enter your details to access your habits, entries, and progress.
+            </p>
 
-              <form
-                class="form-stack"
-                hx-post="/auth/web/login"
-                hx-target="#auth-feedback-login"
-                hx-swap="innerHTML"
-                onsubmit="return validateLoginBeforeSubmit();"
+            <form
+              class="form-stack"
+              hx-post="/auth/web/login"
+              hx-target="#auth-feedback-login"
+              hx-swap="innerHTML"
+              onsubmit="return validateLoginBeforeSubmit();"
+            >
+              <label>
+                <span>Email</span>
+                <input
+                  type="email"
+                  name="email"
+                  id="login-email"
+                  placeholder="Enter email"
+                />
+              </label>
+
+              <label>
+                <span>Password</span>
+                <input
+                  type="password"
+                  name="password"
+                  id="login-password"
+                  placeholder="Enter password"
+                />
+              </label>
+
+              <button type="submit" class="primary-action">Login</button>
+            </form>
+
+            <div id="auth-feedback-login"></div>
+
+            <p class="auth-helper-text">
+              Don’t have an account?
+              <button
+                type="button"
+                class="text-button"
+                onclick="setAuthMode('signup')"
               >
-                <label>
-                  <span>Email</span>
-                  <input
-                    type="email"
-                    name="email"
-                    id="login-email"
-                    placeholder="Enter email"
-                  />
-                </label>
+                Sign up
+              </button>
+            </p>
+          </section>
 
-                <label>
+          <section class="auth-panel" id="auth-panel-signup">
+            <p class="form-kicker">Create account</p>
+            <h3>Start your tracker</h3>
+            <p class="auth-card-text">
+              Create an account to begin tracking habits, entries, and long-term
+              progress.
+            </p>
+
+            <form
+              class="form-stack"
+              hx-post="/auth/web/signup"
+              hx-target="#auth-feedback-signup"
+              hx-swap="innerHTML"
+              onsubmit="return validateSignupBeforeSubmit();"
+              autocomplete="off"
+            >
+              <label>
+                <span>Username</span>
+                <input
+                  type="text"
+                  name="username"
+                  id="signup-username"
+                  placeholder="Enter username"
+                  required
+                  autocomplete="off"
+                />
+              </label>
+
+              <label>
+                <span>Email</span>
+                <input
+                  type="email"
+                  name="email"
+                  id="signup-email"
+                  placeholder="Enter email"
+                  required
+                  autocomplete="off"
+                />
+              </label>
+
+              <label>
+                <span class="password-label-row">
                   <span>Password</span>
-                  <input
-                    type="password"
-                    name="password"
-                    id="login-password"
-                    placeholder="Enter password"
-                  />
-                </label>
-
-                <button type="submit" class="primary-action">Login</button>
-              </form>
-
-              <div id="auth-feedback-login"></div>
-
-              <p class="auth-helper-text">
-                Don’t have an account?
-                <button
-                  type="button"
-                  class="text-button"
-                  onclick="setAuthMode('signup')"
-                >
-                  Sign up
-                </button>
-              </p>
-            </section>
-
-            <section class="auth-panel">
-              <p class="form-kicker">Create account</p>
-              <h3>Start your tracker</h3>
-              <p class="auth-card-text">
-                Create an account to begin tracking habits, entries, and
-                long-term progress.
-              </p>
-
-              <form
-                class="form-stack"
-                hx-post="/auth/web/signup"
-                hx-target="#auth-feedback-signup"
-                hx-swap="innerHTML"
-                onsubmit="return validateSignupBeforeSubmit();"
-                autocomplete="off"
-              >
-                <label>
-                  <span>Username</span>
-                  <input
-                    type="text"
-                    name="username"
-                    placeholder="Enter username"
-                    required
-                    autocomplete="off"
-                  />
-                </label>
-
-                <label>
-                  <span>Email</span>
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="Enter email"
-                    required
-                    autocomplete="off"
-                  />
-                </label>
-
-                <label>
-                  <span class="password-label-row">
-                    <span>Password</span>
-                    <button
-                      type="button"
-                      class="info-trigger"
-                      aria-label="Show password requirements"
-                    >
-                      i
-                    </button>
-                    <span class="password-tooltip">
-                      At least 8 characters, one lowercase letter, one uppercase
-                      letter, and one number.
-                    </span>
+                  <button
+                    type="button"
+                    class="info-trigger"
+                    aria-label="Show password requirements"
+                  >
+                    i
+                  </button>
+                  <span class="password-tooltip">
+                    Use at least 8 characters with one lowercase letter, one
+                    uppercase letter, and one number.
                   </span>
+                </span>
 
-                  <input
-                    type="password"
-                    name="password"
-                    id="signup-password"
-                    placeholder="Create password"
-                    required
-                    autocomplete="new-password"
-                    oninput="validateSignupPassword()"
-                  />
-                </label>
+                <input
+                  type="password"
+                  name="password"
+                  id="signup-password"
+                  placeholder="Create password"
+                  required
+                  autocomplete="new-password"
+                  oninput="validateSignupPassword()"
+                />
+              </label>
 
-                <label>
-                  <span>Repeat password</span>
-                  <input
-                    type="password"
-                    name="repeat_password"
-                    id="signup-repeat-password"
-                    placeholder="Repeat password"
-                    required
-                    autocomplete="new-password"
-                    oninput="validateSignupPassword()"
-                  />
-                </label>
+              <label>
+                <span>Repeat password</span>
+                <input
+                  type="password"
+                  name="repeat_password"
+                  id="signup-repeat-password"
+                  placeholder="Repeat password"
+                  required
+                  autocomplete="new-password"
+                  oninput="validateSignupPassword()"
+                />
+              </label>
 
+              <div class="password-rules-slot">
                 <div
                   id="password-rules-box"
                   class="password-rules-box password-rules-box-hidden"
                 >
                   <p class="password-rules-title">Password requirements</p>
-                  <ul class="password-rules-list" id="password-rules-list">
+                  <ul class="password-rules-list">
                     <li id="rule-length" class="password-rule-item">
                       At least 8 characters
                     </li>
@@ -206,26 +208,26 @@ endblock %} {% block content %}
                     </li>
                   </ul>
                 </div>
+              </div>
 
-                <button type="submit" class="primary-action">
-                  Create account
-                </button>
-              </form>
+              <button type="submit" class="primary-action">
+                Create account
+              </button>
+            </form>
 
-              <div id="auth-feedback-signup"></div>
+            <div id="auth-feedback-signup"></div>
 
-              <p class="auth-helper-text">
-                Already have an account?
-                <button
-                  type="button"
-                  class="text-button"
-                  onclick="setAuthMode('login')"
-                >
-                  Login
-                </button>
-              </p>
-            </section>
-          </div>
+            <p class="auth-helper-text">
+              Already have an account?
+              <button
+                type="button"
+                class="text-button"
+                onclick="setAuthMode('login')"
+              >
+                Login
+              </button>
+            </p>
+          </section>
         </div>
       </div>
     </div>
@@ -233,40 +235,75 @@ endblock %} {% block content %}
 </section>
 
 <script>
-  function setAuthMode(mode) {
-    const track = document.getElementById("auth-track");
-    const loginToggle = document.getElementById("login-toggle");
-    const signupToggle = document.getElementById("signup-toggle");
-    const authToggle = document.getElementById("auth-toggle");
+  function getAuthElements() {
+    return {
+      viewport: document.getElementById("auth-viewport"),
+      loginPanel: document.getElementById("auth-panel-login"),
+      signupPanel: document.getElementById("auth-panel-signup"),
+      loginToggle: document.getElementById("login-toggle"),
+      signupToggle: document.getElementById("signup-toggle"),
+      authToggle: document.getElementById("auth-toggle"),
+    };
+  }
 
-    if (!track || !loginToggle || !signupToggle || !authToggle) return;
+  function syncViewportHeight() {
+    const { viewport, loginPanel, signupPanel } = getAuthElements();
+    if (!viewport || !loginPanel || !signupPanel) return;
+
+    const activePanel = loginPanel.classList.contains("auth-panel-active")
+      ? loginPanel
+      : signupPanel;
+
+    viewport.style.height = `${activePanel.scrollHeight}px`;
+  }
+
+  function setAuthMode(mode) {
+    const { loginPanel, signupPanel, loginToggle, signupToggle, authToggle } =
+      getAuthElements();
+
+    if (
+      !loginPanel ||
+      !signupPanel ||
+      !loginToggle ||
+      !signupToggle ||
+      !authToggle
+    ) {
+      return;
+    }
 
     if (mode === "signup") {
-      track.classList.add("auth-track-signup");
+      loginPanel.classList.remove("auth-panel-active");
+      signupPanel.classList.add("auth-panel-active");
+
       loginToggle.classList.remove("toggle-button-active");
       signupToggle.classList.add("toggle-button-active");
       authToggle.classList.add("auth-toggle-signup");
     } else {
-      track.classList.remove("auth-track-signup");
+      signupPanel.classList.remove("auth-panel-active");
+      loginPanel.classList.add("auth-panel-active");
+
       signupToggle.classList.remove("toggle-button-active");
       loginToggle.classList.add("toggle-button-active");
       authToggle.classList.remove("auth-toggle-signup");
+
       resetSignupState();
     }
+
+    requestAnimationFrame(syncViewportHeight);
   }
 
   function renderAuthError(targetId, message) {
     const target = document.getElementById(targetId);
     if (!target) return;
-
     target.innerHTML = `<div class="feedback-box feedback-error">${message}</div>`;
+    requestAnimationFrame(syncViewportHeight);
   }
 
   function clearAuthError(targetId) {
     const target = document.getElementById(targetId);
     if (!target) return;
-
     target.innerHTML = "";
+    requestAnimationFrame(syncViewportHeight);
   }
 
   function updateRuleState(elementId, isValid, isNeutral = false) {
@@ -289,6 +326,7 @@ endblock %} {% block content %}
     if (box) {
       box.classList.remove("password-rules-box-hidden");
     }
+    requestAnimationFrame(syncViewportHeight);
   }
 
   function hidePasswordRulesBox() {
@@ -296,6 +334,7 @@ endblock %} {% block content %}
     if (box) {
       box.classList.add("password-rules-box-hidden");
     }
+    requestAnimationFrame(syncViewportHeight);
   }
 
   function resetSignupRulesVisual() {
@@ -339,6 +378,7 @@ endblock %} {% block content %}
     updateRuleState("rule-number", numberValid);
     updateRuleState("rule-match", matchValid);
 
+    requestAnimationFrame(syncViewportHeight);
     return lengthValid && lowerValid && upperValid && numberValid && matchValid;
   }
 
@@ -364,10 +404,8 @@ endblock %} {% block content %}
   }
 
   function validateSignupBeforeSubmit() {
-    const usernameInput = document.querySelector('input[name="username"]');
-    const emailInput = document
-      .querySelector("#signup-password")
-      ?.form?.querySelector('input[name="email"]');
+    const usernameInput = document.getElementById("signup-username");
+    const emailInput = document.getElementById("signup-email");
     const passwordInput = document.getElementById("signup-password");
     const repeatPasswordInput = document.getElementById(
       "signup-repeat-password",
@@ -425,9 +463,22 @@ endblock %} {% block content %}
     resetSignupRulesVisual();
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  window.addEventListener("load", () => {
     hidePasswordRulesBox();
     resetSignupRulesVisual();
+    syncViewportHeight();
+  });
+
+  window.addEventListener("resize", syncViewportHeight);
+
+  document.body.addEventListener("htmx:afterSettle", function (event) {
+    if (
+      event.target &&
+      (event.target.id === "auth-feedback-login" ||
+        event.target.id === "auth-feedback-signup")
+    ) {
+      requestAnimationFrame(syncViewportHeight);
+    }
   });
 </script>
 {% endblock %}
