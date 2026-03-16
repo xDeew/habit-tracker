@@ -11,10 +11,6 @@
     </div>
 
     <div class="planner-header-actions">
-      <div class="planner-user-chip">
-        <span>{{ current_user.email }}</span>
-      </div>
-
       <form action="/auth/web/logout" method="post">
         <button type="submit" class="secondary-action">Logout</button>
       </form>
@@ -68,7 +64,7 @@
       <section class="side-card compact-stat-card">
         <p class="section-kicker">Account</p>
         <h3>{{ current_user.username }}</h3>
-        <p>{{ current_user.email }}</p>
+        <p>Authenticated and ready to track.</p>
       </section>
 
       <section class="side-card">

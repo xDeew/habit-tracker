@@ -11,9 +11,26 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from fastapi.responses import HTMLResponse, RedirectResponse
+import re
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 templates = Jinja2Templates(directory="app/templates")
+
+
+def validate_password_rules(password: str) -> str | None:
+    if len(password) < 8:
+        return "Password must be at least 8 characters long."
+
+    if not re.search(r"[a-z]", password):
+        return "Password must contain at least one lowercase letter."
+
+    if not re.search(r"[A-Z]", password):
+        return "Password must contain at least one uppercase letter."
+
+    if not re.search(r"\d", password):
+        return "Password must contain at least one number."
+
+    return None
 
 
 @router.post("/signup", response_model=UserResponse)
@@ -80,6 +97,19 @@ def web_signup(
             {
                 "request": request,
                 "error": "An account with this email already exists.",
+                "success": None,
+            },
+            status_code=400,
+        )
+
+    password_error = validate_password_rules(password)
+
+    if password_error:
+        return templates.TemplateResponse(
+            "partials/auth_feedback.html",
+            {
+                "request": request,
+                "error": password_error,
                 "success": None,
             },
             status_code=400,

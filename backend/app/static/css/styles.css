@@ -948,3 +948,10 @@ button {
     background: #ffffff;
     border-color: rgba(95, 124, 106, 0.22);
 }
+
+.password-rules {
+    margin: 0.85rem 0 0;
+    color: var(--muted);
+    font-size: 0.92rem;
+    line-height: 1.7;
+}
