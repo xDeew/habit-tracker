@@ -743,7 +743,6 @@ button {
     border-color: rgba(95, 124, 106, 0.35);
     background: #f7faf8;
 }
-
 .habit-row-top {
     display: flex;
     justify-content: space-between;
@@ -905,5 +904,15 @@ button {
 }
 
 .habit-check-button-active span {
+    background: #ffffff;
+}
+
+.habit-check-button-active:hover {
+    transform: translateY(-1px);
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+}
+
+.habit-check-button-active:hover span {
     background: #ffffff;
 }
