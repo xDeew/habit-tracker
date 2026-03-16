@@ -106,16 +106,13 @@ endblock %} {% block content %}
                 long-term progress.
               </p>
 
-              <p class="password-rules">
-                Use at least 8 characters, including one uppercase letter, one
-                lowercase letter, and one number.
-              </p>
-
               <form
                 class="form-stack"
                 hx-post="/auth/web/signup"
                 hx-target="#auth-feedback-signup"
                 hx-swap="innerHTML"
+                onsubmit="return validateSignupBeforeSubmit();"
+                autocomplete="off"
               >
                 <label>
                   <span>Username</span>
@@ -123,22 +120,85 @@ endblock %} {% block content %}
                     type="text"
                     name="username"
                     placeholder="Enter username"
+                    required
+                    autocomplete="off"
                   />
                 </label>
 
                 <label>
                   <span>Email</span>
-                  <input type="email" name="email" placeholder="Enter email" />
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Enter email"
+                    required
+                    autocomplete="off"
+                  />
                 </label>
 
                 <label>
-                  <span>Password</span>
+                  <span class="password-label-row">
+                    <span>Password</span>
+                    <button
+                      type="button"
+                      class="info-trigger"
+                      aria-label="Show password requirements"
+                    >
+                      i
+                    </button>
+                    <span class="password-tooltip">
+                      At least 8 characters, one lowercase letter, one uppercase
+                      letter, and one number.
+                    </span>
+                  </span>
+
                   <input
                     type="password"
                     name="password"
-                    placeholder="Enter password"
+                    id="signup-password"
+                    placeholder="Create password"
+                    required
+                    autocomplete="new-password"
+                    oninput="validateSignupPassword()"
                   />
                 </label>
+
+                <label>
+                  <span>Repeat password</span>
+                  <input
+                    type="password"
+                    name="repeat_password"
+                    id="signup-repeat-password"
+                    placeholder="Repeat password"
+                    required
+                    autocomplete="new-password"
+                    oninput="validateSignupPassword()"
+                  />
+                </label>
+
+                <div
+                  id="password-rules-box"
+                  class="password-rules-box password-rules-box-hidden"
+                >
+                  <p class="password-rules-title">Password requirements</p>
+                  <ul class="password-rules-list" id="password-rules-list">
+                    <li id="rule-length" class="password-rule-item">
+                      At least 8 characters
+                    </li>
+                    <li id="rule-lower" class="password-rule-item">
+                      One lowercase letter
+                    </li>
+                    <li id="rule-upper" class="password-rule-item">
+                      One uppercase letter
+                    </li>
+                    <li id="rule-number" class="password-rule-item">
+                      One number
+                    </li>
+                    <li id="rule-match" class="password-rule-item">
+                      Passwords must match
+                    </li>
+                  </ul>
+                </div>
 
                 <button type="submit" class="primary-action">
                   Create account
@@ -182,7 +242,105 @@ endblock %} {% block content %}
       signupToggle.classList.remove("toggle-button-active");
       loginToggle.classList.add("toggle-button-active");
       authToggle.classList.remove("auth-toggle-signup");
+      resetSignupState();
     }
   }
+
+  function updateRuleState(elementId, isValid, isNeutral = false) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+
+    element.classList.remove("rule-valid", "rule-invalid");
+
+    if (isNeutral) return;
+
+    if (isValid) {
+      element.classList.add("rule-valid");
+    } else {
+      element.classList.add("rule-invalid");
+    }
+  }
+
+  function showPasswordRulesBox() {
+    const box = document.getElementById("password-rules-box");
+    if (box) {
+      box.classList.remove("password-rules-box-hidden");
+    }
+  }
+
+  function hidePasswordRulesBox() {
+    const box = document.getElementById("password-rules-box");
+    if (box) {
+      box.classList.add("password-rules-box-hidden");
+    }
+  }
+
+  function resetSignupRulesVisual() {
+    updateRuleState("rule-length", false, true);
+    updateRuleState("rule-lower", false, true);
+    updateRuleState("rule-upper", false, true);
+    updateRuleState("rule-number", false, true);
+    updateRuleState("rule-match", false, true);
+  }
+
+  function validateSignupPassword() {
+    const passwordInput = document.getElementById("signup-password");
+    const repeatPasswordInput = document.getElementById(
+      "signup-repeat-password",
+    );
+
+    if (!passwordInput || !repeatPasswordInput) return false;
+
+    const password = passwordInput.value;
+    const repeatPassword = repeatPasswordInput.value;
+
+    const hasAnyInput = password.length > 0 || repeatPassword.length > 0;
+
+    if (!hasAnyInput) {
+      hidePasswordRulesBox();
+      resetSignupRulesVisual();
+      return false;
+    }
+
+    showPasswordRulesBox();
+
+    const lengthValid = password.length >= 8;
+    const lowerValid = /[a-z]/.test(password);
+    const upperValid = /[A-Z]/.test(password);
+    const numberValid = /\d/.test(password);
+    const matchValid = repeatPassword.length > 0 && password === repeatPassword;
+
+    updateRuleState("rule-length", lengthValid);
+    updateRuleState("rule-lower", lowerValid);
+    updateRuleState("rule-upper", upperValid);
+    updateRuleState("rule-number", numberValid);
+    updateRuleState("rule-match", matchValid);
+
+    return lengthValid && lowerValid && upperValid && numberValid && matchValid;
+  }
+
+  function validateSignupBeforeSubmit() {
+    return validateSignupPassword();
+  }
+
+  function resetSignupState() {
+    const passwordInput = document.getElementById("signup-password");
+    const repeatPasswordInput = document.getElementById(
+      "signup-repeat-password",
+    );
+    const feedback = document.getElementById("auth-feedback-signup");
+
+    if (passwordInput) passwordInput.value = "";
+    if (repeatPasswordInput) repeatPasswordInput.value = "";
+    if (feedback) feedback.innerHTML = "";
+
+    hidePasswordRulesBox();
+    resetSignupRulesVisual();
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    hidePasswordRulesBox();
+    resetSignupRulesVisual();
+  });
 </script>
 {% endblock %}

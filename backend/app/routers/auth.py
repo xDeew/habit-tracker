@@ -87,6 +87,7 @@ def web_signup(
     username: str = Form(...),
     email: str = Form(...),
     password: str = Form(...),
+    repeat_password: str = Form(...),
     db: Session = Depends(get_db),
 ):
     existing_user = db.query(User).filter(User.email == email).first()
@@ -99,7 +100,6 @@ def web_signup(
                 "error": "An account with this email already exists.",
                 "success": None,
             },
-            status_code=400,
         )
 
     password_error = validate_password_rules(password)
@@ -112,11 +112,22 @@ def web_signup(
                 "error": password_error,
                 "success": None,
             },
-            status_code=400,
+        )
+
+    if password != repeat_password:
+        return templates.TemplateResponse(
+            "partials/auth_feedback.html",
+            {
+                "request": request,
+                "error": "Passwords do not match.",
+                "success": None,
+            },
         )
 
     new_user = User(
-        username=username, email=email, hashed_password=hash_password(password)
+        username=username,
+        email=email,
+        hashed_password=hash_password(password),
     )
 
     db.add(new_user)
