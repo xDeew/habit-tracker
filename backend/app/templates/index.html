@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Habit Tracker{% endblock %}
+
+{% block content %}
+<section class="app-layout">
+  <aside class="sidebar">
+    <div class="brand-mark">HT</div>
+    <div>
+      <p class="sidebar-label">Habit Tracker</p>
+      <h1 class="sidebar-title">A calmer way to build consistency.</h1>
+      <p class="sidebar-text">
+        Track habits, review your progress, and keep your daily systems visible.
+      </p>
+    </div>
+
+    <div class="sidebar-card">
+      <p class="sidebar-card-label">System status</p>
+      <p class="sidebar-card-text">Backend connected and templates running correctly.</p>
+      <a class="sidebar-link" href="/docs">Open API docs</a>
+    </div>
+  </aside>
+
+  <section class="content-panel">
+    <div class="content-header">
+      <div>
+        <p class="section-kicker">Welcome</p>
+        <h2>Start with authentication</h2>
+      </div>
+      <span class="status-pill">Phase 1</span>
+    </div>
+
+    <div class="auth-split">
+      <div class="info-card">
+        <h3>Why this app exists</h3>
+        <p>
+          Habit Tracker is designed to turn repeated actions into something
+          visible, measurable, and easier to sustain over time.
+        </p>
+
+        <ul class="feature-list">
+          <li>Track personal habits</li>
+          <li>Mark daily entries</li>
+          <li>Review streaks and completion</li>
+          <li>Build a cleaner system over time</li>
+        </ul>
+      </div>
+
+      <div class="auth-card">
+        <p class="form-kicker">Next step</p>
+        <h3>Authentication UI coming next</h3>
+        <p class="auth-card-text">
+          We will build signup and login here using FastAPI templates and HTMX,
+          with a style focused on clarity instead of flashy presentation.
+        </p>
+      </div>
+    </div>
+  </section>
+</section>
+{% endblock %}

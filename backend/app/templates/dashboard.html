@@ -1,0 +1,79 @@
+{% extends "base.html" %} {% block title %}Dashboard | Habit Tracker{% endblock
+%} {% block content %}
+<section class="planner-shell">
+  <header class="planner-header">
+    <div>
+      <p class="planner-kicker">Habit Tracker</p>
+      <h1>Hello, {{ current_user.username }}.</h1>
+      <p class="planner-subtitle">
+        A simple daily system to keep your habits visible and moving.
+      </p>
+    </div>
+
+    <div class="planner-user-chip">
+      <span>{{ current_user.email }}</span>
+    </div>
+  </header>
+
+  <section class="planner-grid">
+    <div class="planner-main">
+      <section class="today-panel">
+        <div class="today-panel-header">
+          <div>
+            <p class="section-kicker">Today</p>
+            <h2>Your habits for now</h2>
+          </div>
+          <div class="today-date-chip">Current system</div>
+        </div>
+
+        <div id="habits-list-container">
+          {% include "partials/habits_list.html" %}
+        </div>
+      </section>
+
+      <section class="weekly-panel">
+        <div class="weekly-panel-header">
+          <div>
+            <p class="section-kicker">Rhythm</p>
+            <h2>Weekly view</h2>
+          </div>
+        </div>
+
+        <div class="week-strip">
+          <div class="day-box day-box-active">
+            <span>Mon</span>
+            <strong>Today</strong>
+          </div>
+          <div class="day-box"><span>Tue</span><strong>Plan</strong></div>
+          <div class="day-box"><span>Wed</span><strong>Plan</strong></div>
+          <div class="day-box"><span>Thu</span><strong>Plan</strong></div>
+          <div class="day-box"><span>Fri</span><strong>Plan</strong></div>
+          <div class="day-box"><span>Sat</span><strong>Plan</strong></div>
+          <div class="day-box"><span>Sun</span><strong>Reset</strong></div>
+        </div>
+      </section>
+    </div>
+
+    <aside class="planner-side">
+      <section class="side-card compact-stat-card">
+        <p class="section-kicker">Account</p>
+        <h3>{{ current_user.username }}</h3>
+        <p>{{ current_user.email }}</p>
+      </section>
+
+      <section class="side-card">
+        {% include "partials/habit_create_form.html" %}
+      </section>
+
+      <section class="side-card note-card">
+        <p class="section-kicker">Mindset</p>
+        <h3>Small actions count.</h3>
+        <p>
+          This tracker is not about perfection. It is about making repetition
+          visible.
+        </p>
+      </section>
+    </aside>
+  </section>
+</section>
+{% endblock %}

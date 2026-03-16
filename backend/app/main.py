@@ -1,21 +1,35 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from sqlalchemy import text
-from sqlalchemy.orm import Session
 
-from app.database import engine, Base, get_db
-from app.models import User
-from app.schemas import UserCreate, UserLogin, UserResponse
-from app.security import hash_password, verify_password, create_access_token
-from app.dependencies import get_current_user
+from app.database import engine, Base
+from app.models import User, Habit, HabitEntry
+from app.routers.auth import router as auth_router
+from app.routers.habits import router as habits_router
+from app.routers.stats import router as stats_router
+from fastapi import FastAPI, Request, Depends
+from app.dependencies import get_current_user_from_cookie
+from app.models import User, Habit, HabitEntry
+from datetime import date
+from app.models import HabitEntry
 
 app = FastAPI()
 
 Base.metadata.create_all(bind=engine)
 
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+templates = Jinja2Templates(directory="app/templates")
 
-@app.get("/")
-def read_root():
-    return {"message": "Habit Tracker API is running"}
+app.include_router(auth_router)
+app.include_router(habits_router)
+app.include_router(stats_router)
+
+
+@app.get("/", response_class=HTMLResponse)
+def read_home(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 
 @app.get("/db-test")
@@ -24,61 +38,54 @@ def test_database_connection():
         result = connection.execute(text("SELECT 1"))
         value = result.scalar()
 
-    return {
-        "message": "Database connection successful",
-        "result": value
-    }
+    return {"message": "Database connection successful", "result": value}
 
 
-@app.post("/auth/signup", response_model=UserResponse)
-def signup(user_data: UserCreate, db: Session = Depends(get_db)):
-    existing_user = db.query(User).filter(User.email == user_data.email).first()
-
-    if existing_user:
-        raise HTTPException(status_code=409, detail="User already exists")
-
-    new_user = User(
-        username=user_data.username,
-        email=user_data.email,
-        hashed_password=hash_password(user_data.password)
-    )
-
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-
-    return new_user
+@app.get("/auth-page", response_class=HTMLResponse)
+def auth_page(request: Request):
+    return templates.TemplateResponse("auth.html", {"request": request})
 
 
-@app.post("/auth/login")
-def login(user_data: UserLogin, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == user_data.email).first()
+@app.get("/dashboard", response_class=HTMLResponse)
+def dashboard(
+    request: Request, current_user: User = Depends(get_current_user_from_cookie)
+):
+    from datetime import date
+    from app.database import SessionLocal
+    from app.models import Habit, HabitEntry
 
-    if not user or not verify_password(user_data.password, user.hashed_password):
-        raise HTTPException(status_code=401, detail="Invalid email or password")
+    db = SessionLocal()
+    try:
+        today = date.today()
 
-    token = create_access_token({
-        "user_id": user.id,
-        "email": user.email,
-        "username": user.username
-    })
+        habits = (
+            db.query(Habit)
+            .filter(Habit.user_id == current_user.id)
+            .order_by(Habit.created_at.desc())
+            .all()
+        )
 
-    return {
-        "message": "Login successful",
-        "access_token": token,
-        "token_type": "bearer",
-        "user": {
-            "id": user.id,
-            "username": user.username,
-            "email": user.email
+        completed_today_ids = {
+            entry.habit_id
+            for entry in db.query(HabitEntry)
+            .join(Habit, Habit.id == HabitEntry.habit_id)
+            .filter(
+                Habit.user_id == current_user.id,
+                HabitEntry.date == today,
+                HabitEntry.completed == True,
+            )
+            .all()
         }
-    }
 
-
-@app.get("/me")
-def get_me(current_user: User = Depends(get_current_user)):
-    return {
-        "id": current_user.id,
-        "username": current_user.username,
-        "email": current_user.email
-    }
+        return templates.TemplateResponse(
+            "dashboard.html",
+            {
+                "request": request,
+                "current_user": current_user,
+                "habits": habits,
+                "completed_today_ids": completed_today_ids,
+                "today": today,
+            },
+        )
+    finally:
+        db.close()

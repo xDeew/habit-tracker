@@ -1,0 +1,42 @@
+<div class="habit-stack">
+  {% if habits %}
+    {% for habit in habits %}
+      {% set is_completed_today = habit.id in completed_today_ids %}
+
+      <article class="habit-row {% if is_completed_today %}habit-row-completed{% endif %}">
+        <div class="habit-row-check">
+          <button
+            type="button"
+            class="habit-check-button {% if is_completed_today %}habit-check-button-active{% endif %}"
+            aria-label="Mark habit for today"
+            hx-post="/habits/web/habits/{{ habit.id }}/toggle-today"
+            hx-target="#habits-list-container"
+            hx-swap="innerHTML"
+          >
+            <span></span>
+          </button>
+        </div>
+
+        <div class="habit-row-content">
+          <div class="habit-row-top">
+            <h3>{{ habit.title }}</h3>
+            <div class="habit-row-tags">
+              <span>{{ habit.category or "General" }}</span>
+              <span>{{ habit.frequency }}</span>
+              {% if is_completed_today %}
+                <span>Done today</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <p>{{ habit.description or "No description yet." }}</p>
+        </div>
+      </article>
+    {% endfor %}
+  {% else %}
+    <div class="empty-planner-state">
+      <h3>No habits yet</h3>
+      <p>Create your first habit on the right and start shaping your daily system.</p>
+    </div>
+  {% endif %}
+</div>

@@ -1,0 +1,43 @@
+<div class="create-panel">
+  <div class="create-panel-header">
+    <p class="section-kicker">Create</p>
+    <h3>Add a habit</h3>
+    <p>Keep it simple, repeatable, and easy to measure.</p>
+  </div>
+
+  <form
+    class="form-stack"
+    hx-post="/habits/web/habits/create"
+    hx-target="#habits-list-container"
+    hx-swap="innerHTML"
+  >
+    <label>
+      <span>Title</span>
+      <input type="text" name="title" placeholder="Read 10 pages" required />
+    </label>
+
+    <label>
+      <span>Description</span>
+      <input type="text" name="description" placeholder="Short optional note" />
+    </label>
+
+    <label>
+      <span>Category</span>
+      <input
+        type="text"
+        name="category"
+        placeholder="Reading, Fitness, Health..."
+      />
+    </label>
+
+    <label>
+      <span>Frequency</span>
+      <select name="frequency">
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+      </select>
+    </label>
+
+    <button type="submit" class="primary-action">Create habit</button>
+  </form>
+</div>
