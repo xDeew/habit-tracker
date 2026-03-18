@@ -2,7 +2,7 @@
   <div class="create-panel-header">
     <p class="section-kicker">Create</p>
     <h3>Add a habit</h3>
-    <p>Keep it simple, repeatable, and easy to measure.</p>
+    <p>Keep it small, clear, and easy to repeat.</p>
   </div>
 
   <form
@@ -13,12 +13,23 @@
   >
     <label>
       <span>Title</span>
-      <input type="text" name="title" placeholder="Read 10 pages" required />
+      <input
+        type="text"
+        name="title"
+        placeholder="Read 10 pages"
+        required
+        autocomplete="off"
+      />
     </label>
 
     <label>
       <span>Description</span>
-      <input type="text" name="description" placeholder="Short optional note" />
+      <input
+        type="text"
+        name="description"
+        placeholder="Short optional note"
+        autocomplete="off"
+      />
     </label>
 
     <label>
@@ -27,6 +38,7 @@
         type="text"
         name="category"
         placeholder="Reading, Fitness, Health..."
+        autocomplete="off"
       />
     </label>
 

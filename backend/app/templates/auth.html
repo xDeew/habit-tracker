@@ -1,42 +1,52 @@
-{% extends "base.html" %} {% block title %}Authentication | Habit Tracker{%
-endblock %} {% block content %}
-<section class="app-layout">
-  <aside class="sidebar">
-    <div class="brand-mark">HT</div>
-    <div>
-      <p class="sidebar-label">Habit Tracker</p>
-      <h1 class="sidebar-title">Access your tracker with less friction.</h1>
-      <p class="sidebar-text">
-        Build habits, review progress, and keep your daily system simple and
-        consistent.
-      </p>
+{% extends "base.html" %}
+
+{% block title %}Authentication | Habit Tracker{% endblock %}
+
+{% block content %}
+<section class="app-layout auth-layout">
+  <aside class="sidebar sidebar-auth">
+    <div class="sidebar-brand-row">
+      <div class="brand-mark">HT</div>
+      <p class="sidebar-brand-name">Habit Tracker</p>
     </div>
 
-    <div class="sidebar-card">
-      <p class="sidebar-card-label">Focus</p>
-      <p class="sidebar-card-text">
-        One account, one system, one place to track what you actually do.
+    <div class="sidebar-intro">
+      <h1 class="sidebar-title">Simple habit tracking, built to feel clear.</h1>
+      <p class="sidebar-text">
+        Track habits, review progress, and keep the daily flow easy to
+        understand.
       </p>
     </div>
   </aside>
 
-  <section class="content-panel">
-    <div class="content-header">
+  <section class="content-panel content-panel-auth">
+    <div class="content-header content-header-auth">
       <div>
-        <p class="section-kicker">Authentication</p>
-        <h2>Welcome back</h2>
+        <p class="section-kicker" id="auth-kicker">Authentication</p>
+        <h2 id="auth-title">Welcome back</h2>
+        <p class="content-header-text" id="auth-subtitle">
+          Sign in to continue to your tracker.
+        </p>
       </div>
     </div>
 
-    <div class="single-auth-wrap">
+    <div class="auth-stage">
       <div class="auth-card auth-card-single">
-        <div class="auth-toggle auth-toggle-slider" id="auth-toggle">
+        <div
+          class="auth-toggle auth-toggle-slider"
+          id="auth-toggle"
+          role="tablist"
+          aria-label="Authentication mode"
+        >
           <span class="toggle-pill" id="toggle-pill"></span>
 
           <button
             type="button"
             class="toggle-button toggle-button-active"
             id="login-toggle"
+            role="tab"
+            aria-selected="true"
+            aria-controls="auth-panel-login"
             onclick="setAuthMode('login')"
           >
             Login
@@ -46,6 +56,9 @@ endblock %} {% block content %}
             type="button"
             class="toggle-button"
             id="signup-toggle"
+            role="tab"
+            aria-selected="false"
+            aria-controls="auth-panel-signup"
             onclick="setAuthMode('signup')"
           >
             Sign up
@@ -53,11 +66,16 @@ endblock %} {% block content %}
         </div>
 
         <div class="auth-viewport" id="auth-viewport">
-          <section class="auth-panel auth-panel-active" id="auth-panel-login">
-            <p class="form-kicker">Account access</p>
+          <section
+            class="auth-panel auth-panel-active"
+            id="auth-panel-login"
+            role="tabpanel"
+            aria-hidden="false"
+          >
+            <p class="form-kicker">Login</p>
             <h3>Continue to your tracker</h3>
             <p class="auth-card-text">
-              Enter your details to access your habits, entries, and progress.
+              Enter your email and password to access your dashboard.
             </p>
 
             <form
@@ -74,6 +92,8 @@ endblock %} {% block content %}
                   name="email"
                   id="login-email"
                   placeholder="Enter email"
+                  required
+                  autocomplete="email"
                 />
               </label>
 
@@ -84,6 +104,8 @@ endblock %} {% block content %}
                   name="password"
                   id="login-password"
                   placeholder="Enter password"
+                  required
+                  autocomplete="current-password"
                 />
               </label>
 
@@ -104,16 +126,20 @@ endblock %} {% block content %}
             </p>
           </section>
 
-          <section class="auth-panel" id="auth-panel-signup">
+          <section
+            class="auth-panel"
+            id="auth-panel-signup"
+            role="tabpanel"
+            aria-hidden="true"
+          >
             <p class="form-kicker">Create account</p>
-            <h3>Start your tracker</h3>
+            <h3>Create your account</h3>
             <p class="auth-card-text">
-              Create an account to begin tracking habits, entries, and long-term
-              progress.
+              Set up your account to start tracking habits and daily progress.
             </p>
 
             <form
-              class="form-stack"
+              class="form-stack form-stack-signup"
               hx-post="/auth/web/signup"
               hx-target="#auth-feedback-signup"
               hx-swap="innerHTML"
@@ -128,7 +154,7 @@ endblock %} {% block content %}
                   id="signup-username"
                   placeholder="Enter username"
                   required
-                  autocomplete="off"
+                  autocomplete="username"
                 />
               </label>
 
@@ -140,7 +166,7 @@ endblock %} {% block content %}
                   id="signup-email"
                   placeholder="Enter email"
                   required
-                  autocomplete="off"
+                  autocomplete="email"
                 />
               </label>
 
@@ -187,7 +213,7 @@ endblock %} {% block content %}
               <div class="password-rules-slot">
                 <div
                   id="password-rules-box"
-                  class="password-rules-box password-rules-box-hidden"
+                  class="password-rules-box"
                 >
                   <p class="password-rules-title">Password requirements</p>
                   <ul class="password-rules-list">
@@ -243,8 +269,24 @@ endblock %} {% block content %}
       loginToggle: document.getElementById("login-toggle"),
       signupToggle: document.getElementById("signup-toggle"),
       authToggle: document.getElementById("auth-toggle"),
+      kicker: document.getElementById("auth-kicker"),
+      title: document.getElementById("auth-title"),
+      subtitle: document.getElementById("auth-subtitle"),
     };
   }
+
+  const authCopy = {
+    login: {
+      kicker: "Authentication",
+      title: "Welcome back",
+      subtitle: "Sign in to continue to your tracker.",
+    },
+    signup: {
+      kicker: "Create account",
+      title: "Create your account",
+      subtitle: "Start tracking habits and daily progress with a simple flow.",
+    },
+  };
 
   function syncViewportHeight() {
     const { viewport, loginPanel, signupPanel } = getAuthElements();
@@ -257,9 +299,23 @@ endblock %} {% block content %}
     viewport.style.height = `${activePanel.scrollHeight}px`;
   }
 
+  function syncHeaderCopy(mode) {
+    const { kicker, title, subtitle } = getAuthElements();
+    const copy = authCopy[mode] || authCopy.login;
+
+    if (kicker) kicker.textContent = copy.kicker;
+    if (title) title.textContent = copy.title;
+    if (subtitle) subtitle.textContent = copy.subtitle;
+  }
+
   function setAuthMode(mode) {
-    const { loginPanel, signupPanel, loginToggle, signupToggle, authToggle } =
-      getAuthElements();
+    const {
+      loginPanel,
+      signupPanel,
+      loginToggle,
+      signupToggle,
+      authToggle,
+    } = getAuthElements();
 
     if (
       !loginPanel ||
@@ -274,19 +330,35 @@ endblock %} {% block content %}
     if (mode === "signup") {
       loginPanel.classList.remove("auth-panel-active");
       signupPanel.classList.add("auth-panel-active");
+      loginPanel.setAttribute("aria-hidden", "true");
+      signupPanel.setAttribute("aria-hidden", "false");
 
       loginToggle.classList.remove("toggle-button-active");
       signupToggle.classList.add("toggle-button-active");
+      loginToggle.setAttribute("aria-selected", "false");
+      signupToggle.setAttribute("aria-selected", "true");
       authToggle.classList.add("auth-toggle-signup");
+      syncHeaderCopy("signup");
+      requestAnimationFrame(() =>
+        document.getElementById("signup-username")?.focus(),
+      );
     } else {
       signupPanel.classList.remove("auth-panel-active");
       loginPanel.classList.add("auth-panel-active");
+      signupPanel.setAttribute("aria-hidden", "true");
+      loginPanel.setAttribute("aria-hidden", "false");
 
       signupToggle.classList.remove("toggle-button-active");
       loginToggle.classList.add("toggle-button-active");
+      signupToggle.setAttribute("aria-selected", "false");
+      loginToggle.setAttribute("aria-selected", "true");
       authToggle.classList.remove("auth-toggle-signup");
+      syncHeaderCopy("login");
 
       resetSignupState();
+      requestAnimationFrame(() =>
+        document.getElementById("login-email")?.focus(),
+      );
     }
 
     requestAnimationFrame(syncViewportHeight);
@@ -322,18 +394,10 @@ endblock %} {% block content %}
   }
 
   function showPasswordRulesBox() {
-    const box = document.getElementById("password-rules-box");
-    if (box) {
-      box.classList.remove("password-rules-box-hidden");
-    }
     requestAnimationFrame(syncViewportHeight);
   }
 
   function hidePasswordRulesBox() {
-    const box = document.getElementById("password-rules-box");
-    if (box) {
-      box.classList.add("password-rules-box-hidden");
-    }
     requestAnimationFrame(syncViewportHeight);
   }
 
@@ -355,7 +419,6 @@ endblock %} {% block content %}
 
     const password = passwordInput.value;
     const repeatPassword = repeatPasswordInput.value;
-
     const hasAnyInput = password.length > 0 || repeatPassword.length > 0;
 
     if (!hasAnyInput) {
@@ -466,6 +529,7 @@ endblock %} {% block content %}
   window.addEventListener("load", () => {
     hidePasswordRulesBox();
     resetSignupRulesVisual();
+    syncHeaderCopy("login");
     syncViewportHeight();
   });
 

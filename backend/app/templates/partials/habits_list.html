@@ -1,7 +1,8 @@
 <div class="habit-stack">
+  {% set completed_ids = completed_today_ids|default([]) %}
   {% if habits %}
     {% for habit in habits %}
-      {% set is_completed_today = habit.id in completed_today_ids %}
+      {% set is_completed_today = habit.id in completed_ids %}
 
       <article class="habit-row {% if is_completed_today %}habit-row-completed{% endif %}">
         <div class="habit-row-check">
@@ -12,14 +13,25 @@
             hx-post="/habits/web/habits/{{ habit.id }}/toggle-today"
             hx-target="#habits-list-container"
             hx-swap="innerHTML"
+            hx-include="#habit-collection-state"
           >
-            <span></span>
+            <span class="habit-check-indicator"></span>
+            <span class="habit-check-copy">
+              {% if is_completed_today %}
+                Completed
+              {% else %}
+                Mark today
+              {% endif %}
+            </span>
           </button>
         </div>
 
         <div class="habit-row-content">
           <div class="habit-row-top">
-            <h3>{{ habit.title }}</h3>
+            <div>
+              <h3>{{ habit.title }}</h3>
+            </div>
+
             <div class="habit-row-tags">
               <span>{{ habit.category or "General" }}</span>
               <span>{{ habit.frequency }}</span>
@@ -35,8 +47,16 @@
     {% endfor %}
   {% else %}
     <div class="empty-planner-state">
-      <h3>No habits yet</h3>
-      <p>Create your first habit on the right and start shaping your daily system.</p>
+      {% if all_habits_count %}
+        <h3>No habits match this view</h3>
+        <p>Try a different search or switch the filter to see more habits.</p>
+      {% else %}
+        <h3>No habits yet</h3>
+        <p>
+          Create your first habit on the right to turn this dashboard into a
+          visible daily system.
+        </p>
+      {% endif %}
     </div>
   {% endif %}
 </div>

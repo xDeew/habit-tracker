@@ -1,16 +1,33 @@
-{% extends "base.html" %} {% block title %}Dashboard | Habit Tracker{% endblock
-%} {% block content %}
+{% extends "base.html" %}
+
+{% block title %}Dashboard | Habit Tracker{% endblock %}
+
+{% block content %}
+{% set completed_count = completed_today_ids|length %}
+{% set total_habits = all_habits_count %}
+{% set completion_percent = (completed_count * 100 / total_habits) if total_habits else 0 %}
 <section class="planner-shell">
-  <header class="planner-header">
-    <div>
+  <header class="planner-hero">
+    <div class="planner-hero-main">
       <p class="planner-kicker">Habit Tracker</p>
       <h1>Hello, {{ current_user.username }}.</h1>
       <p class="planner-subtitle">
-        A simple daily system to keep your habits visible and moving.
+        Keep today visible and make the next action obvious.
       </p>
     </div>
 
     <div class="planner-header-actions">
+      <div class="hero-summary" id="hero-summary">
+        <article class="hero-summary-item">
+          <span>Today</span>
+          <strong>{{ completed_count }}/{{ total_habits }}</strong>
+        </article>
+        <article class="hero-summary-item">
+          <span>Progress</span>
+          <strong>{{ completion_percent|round(0, "floor") }}%</strong>
+        </article>
+      </div>
+
       <form action="/auth/web/logout" method="post">
         <button type="submit" class="secondary-action">Logout</button>
       </form>
@@ -24,16 +41,19 @@
           <div>
             <p class="section-kicker">Today</p>
             <h2>Your habits for now</h2>
-            <p class="today-summary">
-              {{ completed_today_ids|length }} of {{ habits|length }} completed
-              today
+            <p class="today-summary" id="today-summary">
+              {{ completed_count }} of {{ total_habits }} completed today
             </p>
           </div>
-          <div class="today-date-chip">Current system</div>
+          <div class="today-date-chip">{{ today.strftime("%d %b") }}</div>
+        </div>
+
+        <div class="progress-meter" id="today-progress" aria-hidden="true">
+          <span style="width: {{ completion_percent }}%"></span>
         </div>
 
         <div id="habits-list-container">
-          {% include "partials/habits_list.html" %}
+          {% include "partials/habits_panel.html" %}
         </div>
       </section>
 
@@ -41,20 +61,23 @@
         <div class="weekly-panel-header">
           <div>
             <p class="section-kicker">Rhythm</p>
-            <h2>Weekly view</h2>
+            <h2>Weekly cadence</h2>
+            <p class="today-summary">
+              A simple weekly frame to keep the system intentional.
+            </p>
           </div>
         </div>
 
         <div class="week-strip">
           <div class="day-box day-box-active">
             <span>Mon</span>
-            <strong>Today</strong>
+            <strong>Focus</strong>
           </div>
-          <div class="day-box"><span>Tue</span><strong>Plan</strong></div>
-          <div class="day-box"><span>Wed</span><strong>Plan</strong></div>
-          <div class="day-box"><span>Thu</span><strong>Plan</strong></div>
-          <div class="day-box"><span>Fri</span><strong>Plan</strong></div>
-          <div class="day-box"><span>Sat</span><strong>Plan</strong></div>
+          <div class="day-box"><span>Tue</span><strong>Build</strong></div>
+          <div class="day-box"><span>Wed</span><strong>Maintain</strong></div>
+          <div class="day-box"><span>Thu</span><strong>Review</strong></div>
+          <div class="day-box"><span>Fri</span><strong>Close</strong></div>
+          <div class="day-box"><span>Sat</span><strong>Light</strong></div>
           <div class="day-box"><span>Sun</span><strong>Reset</strong></div>
         </div>
       </section>
@@ -64,20 +87,11 @@
       <section class="side-card compact-stat-card">
         <p class="section-kicker">Account</p>
         <h3>{{ current_user.username }}</h3>
-        <p>Authenticated and ready to track.</p>
+        <p>{{ current_user.email }}</p>
       </section>
 
       <section class="side-card">
         {% include "partials/habit_create_form.html" %}
-      </section>
-
-      <section class="side-card note-card">
-        <p class="section-kicker">Mindset</p>
-        <h3>Small actions count.</h3>
-        <p>
-          This tracker is not about perfection. It is about making repetition
-          visible.
-        </p>
       </section>
     </aside>
   </section>

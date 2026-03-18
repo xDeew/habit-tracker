@@ -1,19 +1,99 @@
-from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from datetime import date
+from typing import Any, List
+
+from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.dependencies import get_current_user
-from app.models import User, Habit, HabitEntry
-from app.schemas import HabitCreate, HabitResponse, HabitEntryCreate, HabitEntryResponse
-from fastapi import APIRouter, Depends, HTTPException, Form, Request
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
 from app.dependencies import get_current_user_from_cookie
-from datetime import date
+from app.dependencies import get_current_user
+from app.models import Habit, HabitEntry, User
+from app.schemas import (
+    HabitCreate,
+    HabitEntryCreate,
+    HabitEntryResponse,
+    HabitResponse,
+)
 
 templates = Jinja2Templates(directory="app/templates")
 router = APIRouter(prefix="/habits", tags=["habits"])
+VALID_HABIT_STATUSES = {"all", "open", "completed"}
+
+
+def normalize_habit_status(value: str) -> str:
+    return value if value in VALID_HABIT_STATUSES else "all"
+
+
+def build_dashboard_context(
+    db: Session,
+    user_id: int,
+    search: str = "",
+    status: str = "all",
+) -> dict[str, Any]:
+    today = date.today()
+    search_query = search.strip()
+    status_filter = normalize_habit_status(status)
+
+    habits = (
+        db.query(Habit)
+        .filter(Habit.user_id == user_id)
+        .order_by(Habit.created_at.desc())
+        .all()
+    )
+
+    completed_today_ids = {
+        entry.habit_id
+        for entry in db.query(HabitEntry)
+        .join(Habit, Habit.id == HabitEntry.habit_id)
+        .filter(
+            Habit.user_id == user_id,
+            HabitEntry.date == today,
+            HabitEntry.completed == True,
+        )
+        .all()
+    }
+
+    filtered_habits = habits
+
+    if search_query:
+        normalized_query = search_query.lower()
+        filtered_habits = [
+            habit
+            for habit in filtered_habits
+            if normalized_query in habit.title.lower()
+            or (habit.category and normalized_query in habit.category.lower())
+            or (habit.description and normalized_query in habit.description.lower())
+        ]
+
+    if status_filter == "completed":
+        filtered_habits = [
+            habit for habit in filtered_habits if habit.id in completed_today_ids
+        ]
+    elif status_filter == "open":
+        filtered_habits = [
+            habit for habit in filtered_habits if habit.id not in completed_today_ids
+        ]
+
+    total_habits_count = len(habits)
+    completed_count = len(completed_today_ids)
+    open_count = max(total_habits_count - completed_count, 0)
+
+    return {
+        "habits": filtered_habits,
+        "all_habits_count": total_habits_count,
+        "matching_habits_count": len(filtered_habits),
+        "completed_today_ids": completed_today_ids,
+        "habit_search": search_query,
+        "habit_status": status_filter,
+        "habit_filter_counts": {
+            "all": total_habits_count,
+            "open": open_count,
+            "completed": completed_count,
+        },
+        "today": today,
+    }
 
 
 @router.post("", response_model=HabitResponse)
@@ -140,18 +220,32 @@ def web_create_habit(
     db.add(new_habit)
     db.commit()
 
-    habits = (
-        db.query(Habit)
-        .filter(Habit.user_id == current_user.id)
-        .order_by(Habit.created_at.desc())
-        .all()
-    )
+    context = build_dashboard_context(db, current_user.id)
 
     return templates.TemplateResponse(
-        "partials/habits_list.html",
+        "partials/dashboard_updates.html",
         {
             "request": request,
-            "habits": habits,
+            **context,
+        },
+    )
+
+
+@router.get("/web/habits/list", response_class=HTMLResponse)
+def web_habits_list(
+    request: Request,
+    search: str = "",
+    status: str = "all",
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user_from_cookie),
+):
+    context = build_dashboard_context(db, current_user.id, search=search, status=status)
+
+    return templates.TemplateResponse(
+        "partials/dashboard_updates.html",
+        {
+            "request": request,
+            **context,
         },
     )
 
@@ -160,6 +254,8 @@ def web_create_habit(
 def web_toggle_habit_today(
     habit_id: int,
     request: Request,
+    search: str = Form(""),
+    status: str = Form("all"),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user_from_cookie),
 ):
@@ -193,31 +289,17 @@ def web_toggle_habit_today(
 
     db.commit()
 
-    habits = (
-        db.query(Habit)
-        .filter(Habit.user_id == current_user.id)
-        .order_by(Habit.created_at.desc())
-        .all()
+    context = build_dashboard_context(
+        db,
+        current_user.id,
+        search=search,
+        status=status,
     )
 
-    completed_today_ids = {
-        entry.habit_id
-        for entry in db.query(HabitEntry)
-        .join(Habit, Habit.id == HabitEntry.habit_id)
-        .filter(
-            Habit.user_id == current_user.id,
-            HabitEntry.date == today,
-            HabitEntry.completed == True,
-        )
-        .all()
-    }
-
     return templates.TemplateResponse(
-        "partials/habits_list.html",
+        "partials/dashboard_updates.html",
         {
             "request": request,
-            "habits": habits,
-            "completed_today_ids": completed_today_ids,
-            "today": today,
+            **context,
         },
     )

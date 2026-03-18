@@ -1,19 +1,15 @@
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import text
 
-from app.database import engine, Base
-from app.models import User, Habit, HabitEntry
-from app.routers.auth import router as auth_router
-from app.routers.habits import router as habits_router
-from app.routers.stats import router as stats_router
-from fastapi import FastAPI, Request, Depends
+from app.database import Base, engine
 from app.dependencies import get_current_user_from_cookie
-from app.models import User, Habit, HabitEntry
-from datetime import date
-from app.models import HabitEntry
+from app.models import User
+from app.routers.auth import router as auth_router
+from app.routers.habits import build_dashboard_context, router as habits_router
+from app.routers.stats import router as stats_router
 
 app = FastAPI()
 
@@ -50,41 +46,18 @@ def auth_page(request: Request):
 def dashboard(
     request: Request, current_user: User = Depends(get_current_user_from_cookie)
 ):
-    from datetime import date
     from app.database import SessionLocal
-    from app.models import Habit, HabitEntry
 
     db = SessionLocal()
     try:
-        today = date.today()
-
-        habits = (
-            db.query(Habit)
-            .filter(Habit.user_id == current_user.id)
-            .order_by(Habit.created_at.desc())
-            .all()
-        )
-
-        completed_today_ids = {
-            entry.habit_id
-            for entry in db.query(HabitEntry)
-            .join(Habit, Habit.id == HabitEntry.habit_id)
-            .filter(
-                Habit.user_id == current_user.id,
-                HabitEntry.date == today,
-                HabitEntry.completed == True,
-            )
-            .all()
-        }
+        context = build_dashboard_context(db, current_user.id)
 
         return templates.TemplateResponse(
             "dashboard.html",
             {
                 "request": request,
                 "current_user": current_user,
-                "habits": habits,
-                "completed_today_ids": completed_today_ids,
-                "today": today,
+                **context,
             },
         )
     finally:

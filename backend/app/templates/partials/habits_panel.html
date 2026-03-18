@@ -1,0 +1,87 @@
+<section class="habit-collection">
+  <div class="habit-toolbar">
+    <div class="habit-toolbar-top">
+      <label class="habit-search-field">
+        <span class="sr-only">Search habits</span>
+        <input
+          type="search"
+          id="habit-search-input"
+          name="search"
+          value="{{ habit_search }}"
+          placeholder="Search habits"
+          autocomplete="off"
+          hx-get="/habits/web/habits/list"
+          hx-trigger="keyup changed delay:250ms, search"
+          hx-target="#habits-list-container"
+          hx-swap="innerHTML"
+          hx-include="#habit-status-input"
+        />
+      </label>
+
+      <input
+        type="hidden"
+        id="habit-status-input"
+        name="status"
+        value="{{ habit_status }}"
+      />
+
+      <div class="habit-filter-row">
+        <button
+          type="button"
+          class="habit-filter-chip {% if habit_status == 'all' %}habit-filter-chip-active{% endif %}"
+          hx-get="/habits/web/habits/list"
+          hx-target="#habits-list-container"
+          hx-swap="innerHTML"
+          hx-include="#habit-search-input"
+          hx-vals='{"status":"all"}'
+        >
+          All
+          <span>{{ habit_filter_counts["all"] }}</span>
+        </button>
+
+        <button
+          type="button"
+          class="habit-filter-chip {% if habit_status == 'open' %}habit-filter-chip-active{% endif %}"
+          hx-get="/habits/web/habits/list"
+          hx-target="#habits-list-container"
+          hx-swap="innerHTML"
+          hx-include="#habit-search-input"
+          hx-vals='{"status":"open"}'
+        >
+          Open
+          <span>{{ habit_filter_counts["open"] }}</span>
+        </button>
+
+        <button
+          type="button"
+          class="habit-filter-chip {% if habit_status == 'completed' %}habit-filter-chip-active{% endif %}"
+          hx-get="/habits/web/habits/list"
+          hx-target="#habits-list-container"
+          hx-swap="innerHTML"
+          hx-include="#habit-search-input"
+          hx-vals='{"status":"completed"}'
+        >
+          Completed
+          <span>{{ habit_filter_counts["completed"] }}</span>
+        </button>
+      </div>
+    </div>
+
+    <p class="habit-toolbar-summary">
+      {% if all_habits_count %}
+        Showing {{ matching_habits_count }} of {{ all_habits_count }} habits
+      {% else %}
+        Start by creating your first habit
+      {% endif %}
+    </p>
+
+    <div id="habit-collection-state" hidden>
+      <input type="hidden" name="search" value="{{ habit_search }}" />
+      <input type="hidden" name="status" value="{{ habit_status }}" />
+    </div>
+  </div>
+
+  <div class="habit-collection-scroll">
+    {% include "partials/habits_list.html" %}
+  </div>
+</section>

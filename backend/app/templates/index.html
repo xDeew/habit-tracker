@@ -3,57 +3,91 @@
 {% block title %}Habit Tracker{% endblock %}
 
 {% block content %}
-<section class="app-layout">
-  <aside class="sidebar">
-    <div class="brand-mark">HT</div>
-    <div>
+<section class="app-layout home-layout">
+  <aside class="sidebar home-sidebar">
+    <div class="sidebar-brand-row">
+      <div class="brand-mark">HT</div>
+      <div>
+        <p class="sidebar-brand-name">Habit Tracker</p>
+        <p class="home-brand-meta">Daily system</p>
+      </div>
+    </div>
+
+    <div class="home-sidebar-copy">
       <p class="sidebar-label">Habit Tracker</p>
-      <h1 class="sidebar-title">A calmer way to build consistency.</h1>
-      <p class="sidebar-text">
-        Track habits, review your progress, and keep your daily systems visible.
+      <h1 class="sidebar-title home-sidebar-title">
+        Build consistency without extra noise.
+      </h1>
+      <p class="sidebar-text home-sidebar-text">
+        Create habits, track today, and keep progress easy to understand.
       </p>
     </div>
 
-    <div class="sidebar-card">
-      <p class="sidebar-card-label">System status</p>
-      <p class="sidebar-card-text">Backend connected and templates running correctly.</p>
-      <a class="sidebar-link" href="/docs">Open API docs</a>
+    <div class="home-sidebar-proof">
+      <p class="sidebar-card-label">Designed for</p>
+      <div class="home-proof-list">
+        <div class="home-proof-item">
+          <strong>Daily clarity</strong>
+          <span>See today’s habits and progress at a glance.</span>
+        </div>
+
+        <div class="home-proof-item">
+          <strong>Low friction</strong>
+          <span>Create, check off, and review without wasted steps.</span>
+        </div>
+
+        <div class="home-proof-item">
+          <strong>Clear scaling</strong>
+          <span>Search and filters keep the dashboard useful as it grows.</span>
+        </div>
+      </div>
     </div>
   </aside>
 
-  <section class="content-panel">
-    <div class="content-header">
-      <div>
-        <p class="section-kicker">Welcome</p>
-        <h2>Start with authentication</h2>
+  <section class="content-panel home-panel">
+    <div class="home-hero">
+      <p class="section-kicker">Welcome</p>
+      <h2>Simple habit tracking, built to feel clear.</h2>
+      <p class="content-header-text home-hero-text">
+        Create habits, mark today, and review progress in one clean flow.
+      </p>
+
+      <div class="home-hero-actions">
+        <a class="primary-action home-primary-link" href="/auth-page">
+          Open app
+        </a>
+        <a class="secondary-action home-secondary-link" href="/docs">
+          API reference
+        </a>
       </div>
-      <span class="status-pill">Phase 1</span>
     </div>
 
-    <div class="auth-split">
-      <div class="info-card">
-        <h3>Why this app exists</h3>
+    <div class="home-card-grid">
+      <article class="info-card home-card">
+        <p class="section-kicker">Core flow</p>
+        <h3>What you can do</h3>
+
+        <div class="home-check-list">
+          <div class="home-check-item">Create habits in seconds.</div>
+          <div class="home-check-item">Mark them for today.</div>
+          <div class="home-check-item">Review progress without clutter.</div>
+        </div>
+      </article>
+
+      <article class="info-card home-card">
+        <p class="section-kicker">Why it works</p>
+        <h3>Calm by default.</h3>
         <p>
-          Habit Tracker is designed to turn repeated actions into something
-          visible, measurable, and easier to sustain over time.
+          A clear layout, fast interactions, and a dashboard that stays readable
+          as your system grows.
         </p>
 
-        <ul class="feature-list">
-          <li>Track personal habits</li>
-          <li>Mark daily entries</li>
-          <li>Review streaks and completion</li>
-          <li>Build a cleaner system over time</li>
+        <ul class="feature-list home-feature-list">
+          <li>Simple authentication flow</li>
+          <li>Visible daily progress</li>
+          <li>Search and filters when needed</li>
         </ul>
-      </div>
-
-      <div class="auth-card">
-        <p class="form-kicker">Next step</p>
-        <h3>Authentication UI coming next</h3>
-        <p class="auth-card-text">
-          We will build signup and login here using FastAPI templates and HTMX,
-          with a style focused on clarity instead of flashy presentation.
-        </p>
-      </div>
+      </article>
     </div>
   </section>
 </section>

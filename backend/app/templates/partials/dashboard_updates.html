@@ -1,0 +1,24 @@
+{% set completed_count = completed_today_ids|length %}
+{% set total_habits = all_habits_count %}
+{% set completion_percent = (completed_count * 100 / total_habits) if total_habits else 0 %}
+
+{% include "partials/habits_panel.html" %}
+
+<div class="hero-summary" id="hero-summary" hx-swap-oob="outerHTML">
+  <article class="hero-summary-item">
+    <span>Today</span>
+    <strong>{{ completed_count }}/{{ total_habits }}</strong>
+  </article>
+  <article class="hero-summary-item">
+    <span>Progress</span>
+    <strong>{{ completion_percent|round(0, "floor") }}%</strong>
+  </article>
+</div>
+
+<p class="today-summary" id="today-summary" hx-swap-oob="outerHTML">
+  {{ completed_count }} of {{ total_habits }} completed today
+</p>
+
+<div class="progress-meter" id="today-progress" hx-swap-oob="outerHTML" aria-hidden="true">
+  <span style="width: {{ completion_percent }}%"></span>
+</div>
