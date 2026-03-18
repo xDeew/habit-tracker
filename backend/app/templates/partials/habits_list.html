@@ -32,12 +32,27 @@
               <h3>{{ habit.title }}</h3>
             </div>
 
-            <div class="habit-row-tags">
-              <span>{{ habit.category or "General" }}</span>
-              <span>{{ habit.frequency }}</span>
-              {% if is_completed_today %}
-                <span>Done today</span>
-              {% endif %}
+            <div class="habit-row-actions">
+              <div class="habit-row-tags">
+                <span>{{ habit.category or "General" }}</span>
+                <span>{{ habit.frequency }}</span>
+                {% if is_completed_today %}
+                  <span>Done today</span>
+                {% endif %}
+              </div>
+
+              <button
+                type="button"
+                class="habit-delete-button"
+                aria-label="Delete habit {{ habit.title }}"
+                hx-post="/habits/web/habits/{{ habit.id }}/delete"
+                hx-target="#habits-list-container"
+                hx-swap="innerHTML"
+                hx-include="#habit-collection-state"
+                hx-confirm="Delete this habit? This cannot be undone."
+              >
+                Delete
+              </button>
             </div>
           </div>
 

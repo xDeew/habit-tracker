@@ -26,6 +26,19 @@ def normalize_habit_status(value: str) -> str:
     return value if value in VALID_HABIT_STATUSES else "all"
 
 
+def get_owned_habit_or_404(db: Session, user_id: int, habit_id: int) -> Habit:
+    habit = (
+        db.query(Habit)
+        .filter(Habit.id == habit_id, Habit.user_id == user_id)
+        .first()
+    )
+
+    if not habit:
+        raise HTTPException(status_code=404, detail="Habit not found")
+
+    return habit
+
+
 def build_dashboard_context(
     db: Session,
     user_id: int,
@@ -129,6 +142,19 @@ def get_habits(
     )
 
     return habits
+
+
+@router.delete("/{habit_id}")
+def delete_habit(
+    habit_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    habit = get_owned_habit_or_404(db, current_user.id, habit_id)
+    db.delete(habit)
+    db.commit()
+
+    return {"message": "Habit deleted"}
 
 
 @router.post("/{habit_id}/entries", response_model=HabitEntryResponse)
@@ -250,6 +276,35 @@ def web_habits_list(
     )
 
 
+@router.post("/web/habits/{habit_id}/delete", response_class=HTMLResponse)
+def web_delete_habit(
+    habit_id: int,
+    request: Request,
+    search: str = Form(""),
+    status: str = Form("all"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user_from_cookie),
+):
+    habit = get_owned_habit_or_404(db, current_user.id, habit_id)
+    db.delete(habit)
+    db.commit()
+
+    context = build_dashboard_context(
+        db,
+        current_user.id,
+        search=search,
+        status=status,
+    )
+
+    return templates.TemplateResponse(
+        "partials/dashboard_updates.html",
+        {
+            "request": request,
+            **context,
+        },
+    )
+
+
 @router.post("/web/habits/{habit_id}/toggle-today", response_class=HTMLResponse)
 def web_toggle_habit_today(
     habit_id: int,
@@ -260,15 +315,7 @@ def web_toggle_habit_today(
     current_user: User = Depends(get_current_user_from_cookie),
 ):
     today = date.today()
-
-    habit = (
-        db.query(Habit)
-        .filter(Habit.id == habit_id, Habit.user_id == current_user.id)
-        .first()
-    )
-
-    if not habit:
-        raise HTTPException(status_code=404, detail="Habit not found")
+    get_owned_habit_or_404(db, current_user.id, habit_id)
 
     existing_entry = (
         db.query(HabitEntry)
